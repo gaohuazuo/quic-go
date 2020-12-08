@@ -262,6 +262,8 @@ type Config struct {
 	StatelessResetKey []byte
 	// KeepAlive defines whether this peer will periodically send a packet to keep the connection alive.
 	KeepAlive bool
+	// Congestion control
+	SendBandwidth uint64
 	// QUIC Event Tracer (see https://github.com/google/quic-trace).
 	// Warning: Support for quic-trace will soon be dropped in favor of qlog.
 	// It is disabled by default. Use the "quictrace" build tag to enable (e.g. go build -tags quictrace).

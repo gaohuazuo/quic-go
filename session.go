@@ -272,6 +272,7 @@ var newSession = func(
 	)
 	s.preSetup()
 	s.sentPacketHandler, s.receivedPacketHandler = ackhandler.NewAckHandler(
+		conf.SendBandwidth,
 		0,
 		s.rttStats,
 		s.perspective,
@@ -395,6 +396,7 @@ var newClientSession = func(
 	)
 	s.preSetup()
 	s.sentPacketHandler, s.receivedPacketHandler = ackhandler.NewAckHandler(
+		conf.SendBandwidth,
 		initialPacketNumber,
 		s.rttStats,
 		s.perspective,

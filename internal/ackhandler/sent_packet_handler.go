@@ -96,6 +96,7 @@ var (
 )
 
 func newSentPacketHandler(
+	bandwidth congestion.Bandwidth,
 	initialPacketNumber protocol.PacketNumber,
 	rttStats *utils.RTTStats,
 	pers protocol.Perspective,
@@ -103,12 +104,17 @@ func newSentPacketHandler(
 	tracer logging.ConnectionTracer,
 	logger utils.Logger,
 ) *sentPacketHandler {
-	congestion := congestion.NewCubicSender(
-		congestion.DefaultClock{},
-		rttStats,
-		true, // use Reno
-		tracer,
-	)
+	var cong congestion.SendAlgorithmWithDebugInfos
+	if bandwidth == 0 {
+		cong = congestion.NewCubicSender(
+			congestion.DefaultClock{},
+			rttStats,
+			true, // use Reno
+			tracer,
+		)
+	} else {
+		cong = congestion.NewRogueSender(congestion.DefaultClock{}, bandwidth)
+	}
 
 	return &sentPacketHandler{
 		peerCompletedAddressValidation: pers == protocol.PerspectiveServer,
@@ -117,7 +123,7 @@ func newSentPacketHandler(
 		handshakePackets:               newPacketNumberSpace(0, rttStats),
 		appDataPackets:                 newPacketNumberSpace(0, rttStats),
 		rttStats:                       rttStats,
-		congestion:                     congestion,
+		congestion:                     cong,
 		perspective:                    pers,
 		traceCallback:                  traceCallback,
 		tracer:                         tracer,
